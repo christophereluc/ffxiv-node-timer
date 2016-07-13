@@ -77,6 +77,8 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_item_list);
         configureUi();
         setSupportActionBar(mBinding.toolbar);
+
+        //Start the query to get data
         mQuery = new AsyncQueryHandlerWithCallback(getContentResolver(), this);
         mQuery.startQuery(QUERY_ID, null,
                 ProviderContracts.ItemEntry.CONTENT_URI,
