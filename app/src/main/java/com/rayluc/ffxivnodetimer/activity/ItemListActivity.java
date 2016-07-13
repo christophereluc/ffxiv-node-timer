@@ -16,6 +16,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
+import com.google.android.gms.ads.MobileAds;
 import com.rayluc.ffxivnodetimer.R;
 import com.rayluc.ffxivnodetimer.data.ProviderContracts;
 import com.rayluc.ffxivnodetimer.databinding.ActivityItemListBinding;
@@ -55,7 +59,14 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
         mBinding.recyclerview.setAdapter(mAdapter);
         setSupportActionBar(mBinding.toolbar);
         getLoaderManager().initLoader(LOADER, null, this);
+        MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040512079233964~8255527732");
 
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators
+                .addTestDevice("SomeString")  // An example device ID
+                .build();
+        mAdView.loadAd(adRequest);
     }
 
     @Override
