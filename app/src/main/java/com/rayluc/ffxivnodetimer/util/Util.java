@@ -16,13 +16,10 @@ public final class Util {
 
     }
 
-    public static Calendar getEorzeanTime() {
-        long localTime = System.currentTimeMillis();
-        long eorzeanTime = (long) (localTime * TIME_MULITPLIER);
-
+    public static long getEorzeanTime() {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(eorzeanTime);
-        return calendar;
+        long localTime = calendar.getTimeInMillis();
+        return (long) (localTime * TIME_MULITPLIER);
     }
 
     /**
@@ -38,8 +35,11 @@ public final class Util {
         if (time.length() > 5) {
             return -1;
         }
-        Calendar calendar = getEorzeanTime();
-        Calendar calendarCopy = getEorzeanTime();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(getEorzeanTime());
+        Calendar calendarCopy = Calendar.getInstance();
+        calendarCopy.setTimeInMillis(getEorzeanTime());
+
         calendarCopy.set(Calendar.HOUR_OF_DAY, Integer.valueOf(time.substring(0, 2)));
         calendarCopy.set(Calendar.MINUTE, Integer.valueOf(time.substring(3)));
         calendarCopy.set(Calendar.SECOND, 0);

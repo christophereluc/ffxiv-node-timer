@@ -29,4 +29,8 @@ public class NodeItem {
         this.coord = coord;
         this.disciple = disciple;
     }
+
+    public String getFormattedZoneCoord() {
+        return zone + ": " + coord;
+    }
 }
