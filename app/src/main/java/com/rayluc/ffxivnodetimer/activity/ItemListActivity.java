@@ -5,6 +5,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -238,13 +239,20 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
                     data.getInt(COL_DISC));
         }
 
-        protected class ViewHolder extends RecyclerView.ViewHolder {
+        protected class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
             protected CardItemBinding cardItemBinding;
 
             public ViewHolder(View itemView) {
                 super(itemView);
                 cardItemBinding = DataBindingUtil.bind(itemView);
+                itemView.setOnClickListener(this);
+            }
+
+            @Override
+            public void onClick(View view) {
+                DialogFragment newFragment = new AlarmDialogFragment();
+                newFragment.show(getSupportFragmentManager(), "alarm");
             }
         }
     }
