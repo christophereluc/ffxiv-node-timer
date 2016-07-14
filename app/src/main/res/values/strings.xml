@@ -7,4 +7,5 @@
     <string name="set_alarm">Yes</string>
     <string name="cancel">Cancel</string>
     <string name="alarm_hint">How long?</string>
+    <string name="cd_enabled_icon">Enabled Icon</string>
 </resources>

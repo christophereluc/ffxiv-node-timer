@@ -28,6 +28,9 @@
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/enabled_icon"
+                android:gravity="start"
                 android:text="@{item.name}"
                 android:textColor="@color/black"
                 android:textSize="16sp"
@@ -37,28 +40,40 @@
                 android:id="@+id/zone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
                 android:layout_below="@id/name"
-                android:textSize="14sp"
-                android:text="@{item.formattedZoneCoord}"/>
+                android:layout_toStartOf="@+id/time"
+                android:gravity="start"
+                android:text="@{item.formattedZoneCoord}"
+                android:textSize="14sp"/>
 
             <TextView
                 android:id="@+id/slot"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/zone"
-                android:textSize="14sp"
-                android:text="@{String.valueOf(item.slot)}"/>
+                android:text="@{String.valueOf(item.slot)}"
+                android:textSize="14sp"/>
+
+            <ImageView
+                android:id="@+id/enabled_icon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:adjustViewBounds="true"
+                android:contentDescription="@string/cd_enabled_icon"
+                android:src="@drawable/ic_favorite"/>
 
             <TextView
                 android:id="@+id/time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_toEndOf="@id/name"
-                android:gravity="right"
+                android:layout_below="@id/enabled_icon"
+                android:gravity="end"
+                android:text="@{item.time}"
                 android:textColor="@color/colorPrimaryDark"
-                android:textSize="16sp"
-                android:text="@{item.time}"/>
+                android:textSize="16sp"/>
 
         </RelativeLayout>
 

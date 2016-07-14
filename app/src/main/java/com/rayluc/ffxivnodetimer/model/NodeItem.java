@@ -16,6 +16,9 @@ public class NodeItem {
     @ProviderContracts.Disciples
     int disciple;
 
+    public boolean timerEnabled = false;
+    public int minuteOffset = 0;
+
     public NodeItem() {
 
     }
@@ -29,6 +32,19 @@ public class NodeItem {
         this.coord = coord;
         this.disciple = disciple;
     }
+
+    public NodeItem(int id, String time, String name, int slot, String zone, String coord, int disciple, boolean timerEnabled, int offset) {
+        this.id = id;
+        this.time = time;
+        this.name = name;
+        this.slot = slot;
+        this.zone = zone;
+        this.coord = coord;
+        this.disciple = disciple;
+        this.timerEnabled = timerEnabled;
+        this.minuteOffset = offset;
+    }
+
 
     public String getFormattedZoneCoord() {
         return zone + ": " + coord;

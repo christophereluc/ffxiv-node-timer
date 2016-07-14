@@ -42,6 +42,8 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
     static final int COL_ZONE = 4;
     static final int COL_COORD = 5;
     static final int COL_DISC = 6;
+    static final int COL_ENABLED = 7;
+    static final int COL_OFFSET = 8;
     // Identifies a particular Loader being used in this component
     private static final int QUERY_ID = 0;
     private static final String[] ITEM_COLUMS = {
@@ -51,7 +53,9 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
             ProviderContracts.ItemEntry.COLUMN_SLOT,
             ProviderContracts.ItemEntry.COLUMN_ZONE,
             ProviderContracts.ItemEntry.COLUMN_COORDINATES,
-            ProviderContracts.ItemEntry.COLUMN_DISCIPLE
+            ProviderContracts.ItemEntry.COLUMN_DISCIPLE,
+            ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED,
+            ProviderContracts.ItemEntry.COLUMN_OFFSET
     };
     private final Handler mHandler = new Handler();
     //Data binding binder
@@ -236,7 +240,9 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
                     data.getInt(COL_SLOT),
                     data.getString(COL_ZONE),
                     data.getString(COL_COORD),
-                    data.getInt(COL_DISC));
+                    data.getInt(COL_DISC),
+                    data.getInt(COL_ENABLED) == 1,
+                    data.getInt(COL_OFFSET));
         }
 
         protected class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

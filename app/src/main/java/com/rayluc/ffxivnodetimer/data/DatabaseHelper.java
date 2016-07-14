@@ -29,26 +29,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ProviderContracts.ItemEntry.COLUMN_SLOT + " INTEGER NOT NULL, " +
                 ProviderContracts.ItemEntry.COLUMN_ZONE + " TEXT NOT NULL, " +
                 ProviderContracts.ItemEntry.COLUMN_COORDINATES + " TEXT NOT NULL, " +
-                ProviderContracts.ItemEntry.COLUMN_DISCIPLE + " INTEGER NOT NULL " +
+                ProviderContracts.ItemEntry.COLUMN_DISCIPLE + " INTEGER NOT NULL, " +
+                ProviderContracts.ItemEntry.COLUMN_OFFSET + " INTEGER DEFAULT 0, " +
+                ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED + " INTEGER DEFAULT 0" +
                 " );";
 
-        final String SQL_CREATE_TIMER_TABLE = "CREATE TABLE " + ProviderContracts.TimerEntry.TABLE_NAME + " (" +
-
-                ProviderContracts.TimerEntry._ID + " INTEGER PRIMARY KEY," +
-
-                // the ID of the location entry associated with this weather data
-                ProviderContracts.TimerEntry.COLUMN_ITEM_KEY + " INTEGER NOT NULL, " +
-                ProviderContracts.TimerEntry.COLUMN_ALARM_TIME + " INTEGER NOT NULL, " +
-                ProviderContracts.TimerEntry.COLUMN_ALARM_OFFSET + " INTEGER NOT NULL, " +
-
-                " FOREIGN KEY (" + ProviderContracts.TimerEntry.COLUMN_ITEM_KEY + ") REFERENCES " +
-                ProviderContracts.ItemEntry.TABLE_NAME + " (" + ProviderContracts.ItemEntry._ID + "), " +
-
-                //Only allow one timer per entry
-                " UNIQUE (" + ProviderContracts.TimerEntry.COLUMN_ITEM_KEY + ") ON CONFLICT REPLACE);";
-
         sqLiteDatabase.execSQL(SQL_CREATE_ITEM_TABLE);
-        sqLiteDatabase.execSQL(SQL_CREATE_TIMER_TABLE);
         insertRows(sqLiteDatabase);
     }
 
@@ -76,7 +62,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ProviderContracts.TimerEntry.TABLE_NAME);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + ProviderContracts.ItemEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }

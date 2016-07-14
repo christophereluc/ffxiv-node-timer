@@ -19,7 +19,6 @@ public class ProviderContracts {
     public static final String CONTENT_AUTHORITY = "com.rayluc.ffxivnodetimer";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     public static final String PATH_ITEM = "item";
-    public static final String PATH_TIMER = "timer";
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({MINER, BOTANIST})
@@ -48,36 +47,12 @@ public class ProviderContracts {
         public static final String COLUMN_ZONE = "zone";
         public static final String COLUMN_COORDINATES = "coordinates";
         public static final String COLUMN_DISCIPLE = "disciple";
+        public static final String COLUMN_OFFSET = "offset";
+        public static final String COLUMN_TIMER_ENABLED = "timeron";
 
         public static Uri buildUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
 
-    /* Inner class that defines the table contents of the weather table */
-    public static final class TimerEntry implements BaseColumns {
-
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_TIMER).build();
-
-        public static final String CONTENT_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TIMER;
-        public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TIMER;
-
-        public static final String TABLE_NAME = "timer";
-
-        // Column with the foreign key into the location table.
-        public static final String COLUMN_ITEM_KEY = "item_id";
-        //Alarm time - Stored as UTC from item pop time
-        public static final String COLUMN_ALARM_TIME = "alarm_time";
-
-        //Time in seconds to subtract from alarm time to get user define alarm time
-        public static final String COLUMN_ALARM_OFFSET = "offset";
-
-        public static Uri buildUri(long id) {
-            return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
-
-    }
 }
