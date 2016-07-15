@@ -3,6 +3,7 @@
 
     <data>
 
+        <import type="com.rayluc.ffxivnodetimer.util.Util"/>
         <variable
             name="item"
             type="com.rayluc.ffxivnodetimer.model.NodeItem"/>
@@ -52,7 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/zone"
-                android:text="@{String.valueOf(item.slot)}"
+                android:text="@{@string/slot(String.valueOf(item.slot))}"
                 android:textSize="14sp"/>
 
             <ImageView
@@ -62,7 +63,7 @@
                 android:layout_alignParentEnd="true"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/cd_enabled_icon"
-                android:src="@drawable/ic_favorite"/>
+                android:src="@{item.timerEnabled ? @drawable/ic_favorite_enabled : @drawable/ic_favorite}"/>
 
             <TextView
                 android:id="@+id/time"
@@ -71,7 +72,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_below="@id/enabled_icon"
                 android:gravity="end"
-                android:text="@{item.time}"
+                android:text="@{Util.convert24HourToAmPm(item.time)}"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="16sp"/>
 

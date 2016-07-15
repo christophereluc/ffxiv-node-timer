@@ -29,7 +29,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ProviderContracts.ItemEntry.COLUMN_SLOT + " INTEGER NOT NULL, " +
                 ProviderContracts.ItemEntry.COLUMN_ZONE + " TEXT NOT NULL, " +
                 ProviderContracts.ItemEntry.COLUMN_COORDINATES + " TEXT NOT NULL, " +
-                ProviderContracts.ItemEntry.COLUMN_DISCIPLE + " INTEGER NOT NULL, " +
                 ProviderContracts.ItemEntry.COLUMN_OFFSET + " INTEGER DEFAULT 0, " +
                 ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED + " INTEGER DEFAULT 0" +
                 " );";
@@ -52,7 +51,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             value.put(ProviderContracts.ItemEntry.COLUMN_TIME, miner.time);
             value.put(ProviderContracts.ItemEntry.COLUMN_SLOT, miner.slot);
             value.put(ProviderContracts.ItemEntry.COLUMN_COORDINATES, miner.coord);
-            value.put(ProviderContracts.ItemEntry.COLUMN_DISCIPLE, miner.disciple);
             database.insert(ProviderContracts.ItemEntry.TABLE_NAME, null, value);
         }
 

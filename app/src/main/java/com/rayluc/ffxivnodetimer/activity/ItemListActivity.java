@@ -1,10 +1,15 @@
 package com.rayluc.ffxivnodetimer.activity;
 
+import android.app.LoaderManager;
+import android.content.ContentValues;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -19,6 +24,7 @@ import android.view.ViewGroup;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.rayluc.ffxivnodetimer.Constants;
 import com.rayluc.ffxivnodetimer.R;
 import com.rayluc.ffxivnodetimer.data.AsyncQueryHandlerWithCallback;
 import com.rayluc.ffxivnodetimer.data.ProviderContracts;
@@ -28,11 +34,12 @@ import com.rayluc.ffxivnodetimer.model.NodeItem;
 import com.rayluc.ffxivnodetimer.util.Util;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ItemListActivity extends AppCompatActivity implements AsyncQueryHandlerWithCallback.QueryCallback {
+public class ItemListActivity extends AppCompatActivity implements AsyncQueryHandlerWithCallback.QueryCallback, AlarmDialogFragment.DialogListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     //Database items
     static final int COL_ID = 0;
@@ -41,11 +48,9 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
     static final int COL_SLOT = 3;
     static final int COL_ZONE = 4;
     static final int COL_COORD = 5;
-    static final int COL_DISC = 6;
-    static final int COL_ENABLED = 7;
-    static final int COL_OFFSET = 8;
-    // Identifies a particular Loader being used in this component
-    private static final int QUERY_ID = 0;
+    static final int COL_ENABLED = 6;
+    static final int COL_OFFSET = 7;
+
     private static final String[] ITEM_COLUMS = {
             ProviderContracts.ItemEntry.TABLE_NAME + "." + ProviderContracts.ItemEntry._ID,
             ProviderContracts.ItemEntry.COLUMN_TIME,
@@ -53,7 +58,6 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
             ProviderContracts.ItemEntry.COLUMN_SLOT,
             ProviderContracts.ItemEntry.COLUMN_ZONE,
             ProviderContracts.ItemEntry.COLUMN_COORDINATES,
-            ProviderContracts.ItemEntry.COLUMN_DISCIPLE,
             ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED,
             ProviderContracts.ItemEntry.COLUMN_OFFSET
     };
@@ -74,8 +78,6 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
         }
     };
 
-    private AsyncQueryHandlerWithCallback mQuery;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,14 +85,7 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
         configureUi();
         setSupportActionBar(mBinding.toolbar);
 
-        //Start the query to get data
-        mQuery = new AsyncQueryHandlerWithCallback(getContentResolver(), this);
-        mQuery.startQuery(QUERY_ID, null,
-                ProviderContracts.ItemEntry.CONTENT_URI,
-                ITEM_COLUMS,
-                null,
-                null,
-                ProviderContracts.ItemEntry.COLUMN_TIME + " ASC");
+        getLoaderManager().initLoader(0, null, this);
     }
 
     @Override
@@ -110,9 +105,7 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mQuery != null) {
-            mQuery.cancelOperation(QUERY_ID);
-        }
+        getLoaderManager().destroyLoader(0);
     }
 
     /**
@@ -185,8 +178,7 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
     }
 
     public void onFabClicked(View v) {
-        Snackbar.make(v, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();
+        startActivity(new Intent(this, TimerListActivity.class));
     }
 
     @Override
@@ -201,12 +193,57 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
 
     @Override
     public void onQueryComplete(Cursor cursor) {
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int id = cursor.getInt(cursor.getColumnIndex(ProviderContracts.ItemEntry._ID));
+            boolean enabled = cursor.getInt(cursor.getColumnIndex(ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED)) == 1;
+            mAdapter.updateIcon(id, enabled);
+        }
+
+    }
+
+    @Override
+    public void onInsertClicked(int id, int minutesOffset) {
+        Uri uri = ProviderContracts.ItemEntry.CONTENT_URI;
+        ContentValues values = new ContentValues();
+        values.put(ProviderContracts.ItemEntry.COLUMN_OFFSET, minutesOffset);
+        values.put(ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED, 1);
+        new AsyncQueryHandlerWithCallback(getContentResolver(), this).startUpdate(0, null, uri, values, ProviderContracts.ItemEntry._ID + " = ?", new String[]{String.valueOf(id)});
+    }
+
+    @Override
+    public void onRemoveTimerClicked(int id) {
+        Uri uri = ProviderContracts.ItemEntry.CONTENT_URI;
+        ContentValues values = new ContentValues();
+        values.put(ProviderContracts.ItemEntry.COLUMN_OFFSET, 0);
+        values.put(ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED, 0);
+        new AsyncQueryHandlerWithCallback(getContentResolver(), this).startUpdate(0, null, uri, values, ProviderContracts.ItemEntry._ID + " = ?", new String[]{String.valueOf(id)});
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        return new CursorLoader(this,
+                ProviderContracts.ItemEntry.CONTENT_URI,
+                ITEM_COLUMS,
+                null,
+                null,
+                ProviderContracts.ItemEntry.COLUMN_TIME + " ASC");
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Cursor cursor) {
         mAdapter.setData(cursor);
     }
 
+    @Override
+    public void onLoaderReset(Loader loader) {
+        mAdapter.setData(null);
+    }
+
+
     protected class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-        private Cursor mData;
+        private ArrayList<NodeItem> mData;
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -215,23 +252,33 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            if (mData.moveToPosition(position)) {
-                NodeItem item = getNodeFromCursor(mData);
+            NodeItem item = mData.get(position);
                 holder.cardItemBinding.setItem(item);
+        }
+
+        public void updateIcon(int nodeId, boolean enabled) {
+            for (NodeItem item : mData) {
+                if (item.id == nodeId) {
+                    item.timerEnabled.set(enabled);
+                    return;
+                }
             }
-            ;
         }
 
         @Override
         public int getItemCount() {
-            return mData != null ? mData.getCount() : 0;
+            return mData != null ? mData.size() : 0;
         }
 
         public void setData(Cursor cursor) {
-            if (mData != null) {
-                mData.close();
+            mData = new ArrayList<>();
+            if (cursor != null) {
+                cursor.moveToFirst();
+                do {
+                    mData.add(getNodeFromCursor(cursor));
+                } while (cursor.moveToNext());
             }
-            mData = cursor;
+            notifyDataSetChanged();
         }
 
         private NodeItem getNodeFromCursor(Cursor data) {
@@ -241,7 +288,6 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
                     data.getInt(COL_SLOT),
                     data.getString(COL_ZONE),
                     data.getString(COL_COORD),
-                    data.getInt(COL_DISC),
                     data.getInt(COL_ENABLED) == 1,
                     data.getInt(COL_OFFSET));
         }
@@ -259,11 +305,9 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
             @Override
             public void onClick(View view) {
                 DialogFragment newFragment = new AlarmDialogFragment();
-                mData.moveToPosition(getAdapterPosition());
-                NodeItem currentNode = getNodeFromCursor(mData);
+                NodeItem currentNode = mData.get(getAdapterPosition());
                 Bundle bundle = new Bundle();
-                bundle.putString("nodename", currentNode.name);
-                bundle.putInt("nodeid", currentNode.id);
+                bundle.putParcelable(Constants.NODE, currentNode);
                 newFragment.setArguments(bundle);
                 newFragment.show(getSupportFragmentManager(), "alarm");
             }

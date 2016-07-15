@@ -1,7 +1,9 @@
 package com.rayluc.ffxivnodetimer.util;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -52,4 +54,15 @@ public final class Util {
         return (long) (calendarCopy.getTimeInMillis() / TIME_MULITPLIER);
     }
 
+    public static String convert24HourToAmPm(String input) {
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(input);
+        } catch (ParseException e) {
+            //Failed parsing so just return input
+            return input;
+        }
+
+        return new SimpleDateFormat("hh:mm aa").format(date);
+    }
 }

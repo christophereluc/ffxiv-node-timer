@@ -46,7 +46,6 @@ public class ProviderContracts {
         public static final String COLUMN_SLOT = "slot";
         public static final String COLUMN_ZONE = "zone";
         public static final String COLUMN_COORDINATES = "coordinates";
-        public static final String COLUMN_DISCIPLE = "disciple";
         public static final String COLUMN_OFFSET = "offset";
         public static final String COLUMN_TIMER_ENABLED = "timeron";
 

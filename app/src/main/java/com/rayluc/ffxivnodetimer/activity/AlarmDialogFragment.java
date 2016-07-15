@@ -1,36 +1,38 @@
 package com.rayluc.ffxivnodetimer.activity;
 
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.AsyncQueryHandler;
-import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
-import android.text.Editable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.EditText;
 
+import com.rayluc.ffxivnodetimer.Constants;
 import com.rayluc.ffxivnodetimer.R;
 import com.rayluc.ffxivnodetimer.data.AsyncQueryHandlerWithCallback;
-import com.rayluc.ffxivnodetimer.data.DataProvider;
-import com.rayluc.ffxivnodetimer.data.DatabaseHelper;
-import com.rayluc.ffxivnodetimer.data.ProviderContracts;
+import com.rayluc.ffxivnodetimer.model.NodeItem;
 
 /**
  * Created by Raymond on 7/13/2016.
  */
-public class AlarmDialogFragment extends android.support.v4.app.DialogFragment implements AsyncQueryHandlerWithCallback.QueryCallback {
+public class AlarmDialogFragment extends android.support.v4.app.DialogFragment {
 
     private AsyncQueryHandlerWithCallback mQuery;
-    String nodeIdStr;
-    private static final String TAG = "AlarmDialog";
+    private String nodeIdStr;
+    private DialogListener mListener;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            mListener = (DialogListener) context;
+        } catch (ClassCastException e) {
+            //Listener not implemented
+        }
+
+    }
 
     @NonNull
     @Override
@@ -40,59 +42,49 @@ public class AlarmDialogFragment extends android.support.v4.app.DialogFragment i
         //Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
         //Get arguments if there are any
-        Bundle bundle = this.getArguments();
-        String nodeName = null;
-        Integer nodeId;
-        if (bundle != null) {
-            nodeName = bundle.getString("nodename");
-            nodeId = bundle.getInt("nodeId");
-            nodeIdStr = nodeId.toString();
-        }
+        Bundle bundle = getArguments();
+        final NodeItem node = bundle.getParcelable(Constants.NODE);
 
-        mQuery = new AsyncQueryHandlerWithCallback(getActivity().getContentResolver(), this);
-
-        //Inflate and set the layout for the dialog
-        //Pass null as the parent view because its going in the dialog layout
-        builder.setView(inflater.inflate(R.layout.dialog_set_alarm, null))
-                .setMessage("Enable timer for " + nodeName + "?")
-                .setPositiveButton(R.string.set_alarm, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // Update NodeItem
-                        EditText mEdit = (EditText) getDialog().findViewById(R.id.alarmSetter);
-                        int minutes = Integer.parseInt(mEdit.getText().toString());
-                        Uri uri = ProviderContracts.ItemEntry.CONTENT_URI;
-                        ContentValues values = new ContentValues();
-                        values.put(ProviderContracts.ItemEntry.COLUMN_OFFSET, minutes);
-                        values.put(ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED, 1);
-                        mQuery.startUpdate(0, null, uri, values, ProviderContracts.ItemEntry._ID + " = ?", new String[] {nodeIdStr});
-
-                        //Query and print DB values in LogCat to show successful update
-
-
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        AlarmDialogFragment.this.getDialog().cancel();
+        if (node != null) {
+            //Inflate and set the layout for the dialog
+            //Pass null as the parent view because its going in the dialog layout
+            builder.setView(inflater.inflate(R.layout.dialog_set_alarm, null))
+                    .setMessage(getString(R.string.alarm_message, node.name))
+                    .setPositiveButton(R.string.set_alarm, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Update NodeItem
+                            EditText mEdit = (EditText) getDialog().findViewById(R.id.alarmSetter);
+                            int minutes = Integer.parseInt(mEdit.getText().toString());
+                            if (mListener != null) {
+                                mListener.onInsertClicked(node.id, minutes);
+                            }
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            AlarmDialogFragment.this.getDialog().cancel();
+                        }
+                    });
+            if (node.timerEnabled.get()) {
+                builder.setNeutralButton(R.string.delete, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (mListener != null) {
+                            mListener.onRemoveTimerClicked(node.id);
+                        }
                     }
                 });
+            }
+
+        }
         // Create the AlertDialog object and return it
         return builder.create();
     }
 
-    @Override
-    public void onInsertComplete(boolean successful) {
+    public interface DialogListener {
+        void onInsertClicked(int id, int minutesOffset);
 
-    }
-
-    @Override
-    public void onDeleteComplete(boolean successful) {
-
-    }
-
-    @Override
-    public void onQueryComplete(Cursor cursor) {
-
+        void onRemoveTimerClicked(int id);
     }
 
 
