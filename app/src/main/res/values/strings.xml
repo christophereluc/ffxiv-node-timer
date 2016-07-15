@@ -10,6 +10,13 @@
     <string name="alarm_hint">minutes</string>
     <string name="cd_enabled_icon">Enabled Icon</string>
     <string name="alarm_message">Enable timer for %s?</string>
-    <string name="dialog_body">Minutes to set timer:</string>
+    <string name="dialog_body">How many minutes early should you get notified?</string>
     <string name="slot">Item slot #%s</string>
+    <string name="offset">Timer Offset: %s</string>
+    <string name="timer_activity_title">Set Timers</string>
+    <string name="no_timers">No timers found!</string>
+    <string name="minutes">Minutes</string>
+    <string name="minutes_error">Cannot be negative!</string>
+    <string name="delete_item">Are you sure you want to delete timer for %s?</string>
+    <string name="caution">Caution!</string>
 </resources>

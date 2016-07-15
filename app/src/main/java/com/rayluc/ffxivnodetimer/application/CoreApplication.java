@@ -12,10 +12,13 @@ public class CoreApplication extends Application {
 
     private RefWatcher refWatcher;
 
-
     @Override
     public void onCreate() {
         super.onCreate();
         refWatcher = LeakCanary.install(this);
+    }
+
+    public RefWatcher getRefWatcher() {
+        return refWatcher;
     }
 }

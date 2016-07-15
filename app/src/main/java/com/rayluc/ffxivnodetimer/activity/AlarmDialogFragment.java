@@ -5,8 +5,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
 
 import com.rayluc.ffxivnodetimer.Constants;
@@ -39,8 +42,7 @@ public class AlarmDialogFragment extends android.support.v4.app.DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        //Get the layout inflater
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+
         //Get arguments if there are any
         Bundle bundle = getArguments();
         final NodeItem node = bundle.getParcelable(Constants.NODE);
@@ -48,18 +50,9 @@ public class AlarmDialogFragment extends android.support.v4.app.DialogFragment {
         if (node != null) {
             //Inflate and set the layout for the dialog
             //Pass null as the parent view because its going in the dialog layout
-            builder.setView(inflater.inflate(R.layout.dialog_set_alarm, null))
+            builder.setView(LayoutInflater.from(getContext()).inflate(R.layout.dialog_set_alarm, null, false))
                     .setMessage(getString(R.string.alarm_message, node.name))
-                    .setPositiveButton(R.string.set_alarm, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // Update NodeItem
-                            EditText mEdit = (EditText) getDialog().findViewById(R.id.alarmSetter);
-                            int minutes = Integer.parseInt(mEdit.getText().toString());
-                            if (mListener != null) {
-                                mListener.onInsertClicked(node.id, minutes);
-                            }
-                        }
-                    })
+                    .setPositiveButton(R.string.set_alarm, null)
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             AlarmDialogFragment.this.getDialog().cancel();
@@ -78,7 +71,25 @@ public class AlarmDialogFragment extends android.support.v4.app.DialogFragment {
 
         }
         // Create the AlertDialog object and return it
-        return builder.create();
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TextInputLayout inputLayout = (TextInputLayout) getDialog().findViewById(R.id.inputlayout);
+                EditText editText = inputLayout.getEditText();
+                String text = editText.getText().toString();
+                int minutes = TextUtils.isEmpty(text) ? 0 : Integer.parseInt(text);
+                if (minutes < 0) {
+                    inputLayout.setError(getString(R.string.minutes_error));
+                } else if (mListener != null) {
+                    mListener.onInsertClicked(node.id, minutes);
+                    dismiss();
+                }
+            }
+        });
+
+        return dialog;
     }
 
     public interface DialogListener {

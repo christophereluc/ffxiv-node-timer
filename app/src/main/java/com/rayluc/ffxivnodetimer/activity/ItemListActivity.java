@@ -29,7 +29,7 @@ import com.rayluc.ffxivnodetimer.R;
 import com.rayluc.ffxivnodetimer.data.AsyncQueryHandlerWithCallback;
 import com.rayluc.ffxivnodetimer.data.ProviderContracts;
 import com.rayluc.ffxivnodetimer.databinding.ActivityItemListBinding;
-import com.rayluc.ffxivnodetimer.databinding.CardItemBinding;
+import com.rayluc.ffxivnodetimer.databinding.CardNodeItemBinding;
 import com.rayluc.ffxivnodetimer.model.NodeItem;
 import com.rayluc.ffxivnodetimer.util.Util;
 
@@ -177,8 +177,16 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Constants.RESULT_DELETED) {
+            getLoaderManager().restartLoader(0, null, this);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     public void onFabClicked(View v) {
-        startActivity(new Intent(this, TimerListActivity.class));
+        startActivityForResult(new Intent(this, TimerListActivity.class), 0);
     }
 
     @Override
@@ -247,13 +255,13 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_item, parent, false));
+            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_node_item, parent, false));
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             NodeItem item = mData.get(position);
-                holder.cardItemBinding.setItem(item);
+            holder.cardItemBinding.setItem(item);
         }
 
         public void updateIcon(int nodeId, boolean enabled) {
@@ -294,7 +302,7 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
 
         protected class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-            protected CardItemBinding cardItemBinding;
+            protected CardNodeItemBinding cardItemBinding;
 
             public ViewHolder(View itemView) {
                 super(itemView);
