@@ -4,8 +4,10 @@
     <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="current_time">Current Time:</string>
     <string name="dialog_set_alarm">Set an alarm for this item?</string>
-    <string name="set_alarm">Yes</string>
+    <string name="set_alarm">Ok</string>
     <string name="cancel">Cancel</string>
-    <string name="alarm_hint">How long?</string>
+    <string name="alarm_hint">minutes</string>
     <string name="cd_enabled_icon">Enabled Icon</string>
+    <string name="alarm_message">Enable timer for</string>
+    <string name="dialog_body">Minutes to set timer:</string>
 </resources>

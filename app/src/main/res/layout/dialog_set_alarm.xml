@@ -3,14 +3,23 @@
 android:orientation="vertical"
 android:layout_width="wrap_content"
 android:layout_height="wrap_content">
-<EditText
-    android:id="@+id/alarmSetter"
-    android:inputType="time"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="16dp"
-    android:layout_marginLeft="4dp"
-    android:layout_marginRight="4dp"
-    android:layout_marginBottom="4dp"
-    android:hint="@string/alarm_hint" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="25dp">
+        <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_body"
+        android:textSize="16sp"
+        />
+        <EditText
+            android:id="@+id/alarmSetter"
+            android:inputType="number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:hint="@string/alarm_hint" />
+    </LinearLayout>
 </LinearLayout>

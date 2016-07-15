@@ -219,6 +219,7 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
                 NodeItem item = getNodeFromCursor(mData);
                 holder.cardItemBinding.setItem(item);
             }
+            ;
         }
 
         @Override
@@ -258,6 +259,12 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
             @Override
             public void onClick(View view) {
                 DialogFragment newFragment = new AlarmDialogFragment();
+                mData.moveToPosition(getAdapterPosition());
+                NodeItem currentNode = getNodeFromCursor(mData);
+                Bundle bundle = new Bundle();
+                bundle.putString("nodename", currentNode.name);
+                bundle.putInt("nodeid", currentNode.id);
+                newFragment.setArguments(bundle);
                 newFragment.show(getSupportFragmentManager(), "alarm");
             }
         }
