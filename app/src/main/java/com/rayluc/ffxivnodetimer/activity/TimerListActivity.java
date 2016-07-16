@@ -101,7 +101,6 @@ public class TimerListActivity extends AppCompatActivity implements LoaderManage
         super.onDestroy();
         //Ensure we're not leaking anything
         ((CoreApplication) getApplication()).getRefWatcher().watch(mTimer);
-        ((CoreApplication) getApplication()).getRefWatcher().watch(mAdapter);
 
     }
 
@@ -141,7 +140,7 @@ public class TimerListActivity extends AppCompatActivity implements LoaderManage
     private void configureAd() {
         AdView adView = (AdView) findViewById(R.id.adView);
         if (adView != null) {
-            MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040512079233964~8255527732");
+            MobileAds.initialize(getApplicationContext(), getString(R.string.banner_ad_unit_id));
 
             AdRequest adRequest = new AdRequest.Builder()
                     .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators

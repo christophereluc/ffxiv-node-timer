@@ -62,9 +62,9 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
             ProviderContracts.ItemEntry.COLUMN_COORDINATES,
             ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED
     };
+    private final Handler mHandler = new Handler();
     //Firebase Analytics object
     private FirebaseAnalytics mFirebaseAnalytics;
-    private final Handler mHandler = new Handler();
     //Data binding binder
     private ActivityItemListBinding mBinding;
     private RecyclerViewAdapter mAdapter;
@@ -125,7 +125,7 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
     private void configureAd() {
         AdView adView = (AdView) findViewById(R.id.adView);
         if (adView != null) {
-            MobileAds.initialize(getApplicationContext(), "ca-app-pub-8040512079233964~8255527732");
+            MobileAds.initialize(getApplicationContext(), getString(R.string.banner_ad_unit_id));
 
             AdRequest adRequest = new AdRequest.Builder()
                     .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)        // All emulators

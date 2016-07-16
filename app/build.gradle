@@ -13,14 +13,30 @@ android {
 
     }
 
+    signingConfigs {
+        debug {
+
+        }
+        release {
+            storeFile file("ffxivNodeKeyStore.jks")
+            keyAlias 'eorzea'
+            storePassword 'final fantasy'
+            keyPassword 'final fantasy'
+        }
+    }
+
     dataBinding {
         enabled = true
     }
 
     buildTypes {
+        debug {
+
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
