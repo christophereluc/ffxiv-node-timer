@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.rayluc.ffxivnodetimer.Constants;
 import com.rayluc.ffxivnodetimer.R;
 import com.rayluc.ffxivnodetimer.data.AsyncQueryHandlerWithCallback;
@@ -61,6 +62,8 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
             ProviderContracts.ItemEntry.COLUMN_COORDINATES,
             ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED
     };
+    //Firebase Analytics object
+    private FirebaseAnalytics mFirebaseAnalytics;
     private final Handler mHandler = new Handler();
     //Data binding binder
     private ActivityItemListBinding mBinding;
@@ -81,6 +84,8 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Obtain the FirebaseAnalytics instance
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_item_list);
         configureUi();
         setSupportActionBar(mBinding.toolbar);
@@ -315,6 +320,11 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
                 bundle.putParcelable(Constants.NODE, currentNode);
                 newFragment.setArguments(bundle);
                 newFragment.show(getSupportFragmentManager(), "alarm");
+                // Log which item was selected in Firebase Analytics
+                Bundle params = new Bundle();
+                params.putString(FirebaseAnalytics.Param.ITEM_ID, currentNode.name);
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, params);
+                mFirebaseAnalytics.logEvent("test_event", params);
             }
         }
     }
