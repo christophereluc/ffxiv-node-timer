@@ -19,4 +19,6 @@
     <string name="minutes_error">Cannot be negative!</string>
     <string name="delete_item">Are you sure you want to delete timer for %s?</string>
     <string name="caution">Caution!</string>
+    <string name="title">%s has appeared!</string>
+    <string name="message">Head to %s!</string>
 </resources>

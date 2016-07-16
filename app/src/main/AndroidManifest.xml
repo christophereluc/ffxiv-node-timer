@@ -2,7 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.rayluc.ffxivnodetimer">
 
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
     <application
         android:name=".application.CoreApplication"
         android:allowBackup="true"
@@ -20,7 +23,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.TimerListActivity"
             android:label="@string/timer_activity_title"
@@ -33,6 +35,31 @@
             android:authorities="com.rayluc.ffxivnodetimer"
             android:exported="false"/>
 
+        <receiver
+            android:name=".timer.BootReceiver"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".timer.NotificationService"
+            android:exported="false">
+        </service>
+
+        <service
+            android:name=".widget.TimerWidgetRemoteViewsServices"
+            android:permission="android.permission.BIND_REMOTEVIEWS"/>
+
+        <receiver android:name=".widget.TimerWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/timer_widget_provider_info"/>
+        </receiver>
     </application>
 
 </manifest>

@@ -5,18 +5,15 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 
-import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 
-/**
- * Created by chris on 7/10/16.
- */
 public class AsyncQueryHandlerWithCallback extends AsyncQueryHandler {
 
-    private SoftReference<QueryCallback> mCallback;
+    private WeakReference<QueryCallback> mCallback;
 
     public AsyncQueryHandlerWithCallback(ContentResolver cr, QueryCallback callback) {
         super(cr);
-        mCallback = new SoftReference<>(callback);
+        mCallback = new WeakReference<>(callback);
     }
 
     @Override
@@ -46,11 +43,22 @@ public class AsyncQueryHandlerWithCallback extends AsyncQueryHandler {
         }
     }
 
+    @Override
+    protected void onUpdateComplete(int token, Object cookie, int result) {
+        super.onUpdateComplete(token, cookie, result);
+        QueryCallback callback = mCallback != null ? mCallback.get() : null;
+        if (callback != null) {
+            callback.onUpdateComplete(token);
+        }
+    }
+
     public interface QueryCallback {
         void onInsertComplete(boolean successful);
 
         void onDeleteComplete(boolean successful);
 
         void onQueryComplete(Cursor cursor);
+
+        void onUpdateComplete(int id);
     }
 }

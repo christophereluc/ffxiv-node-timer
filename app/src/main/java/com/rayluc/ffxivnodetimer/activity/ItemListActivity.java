@@ -1,7 +1,10 @@
 package com.rayluc.ffxivnodetimer.activity;
 
+import android.app.AlarmManager;
 import android.app.LoaderManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
@@ -16,8 +19,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -31,6 +32,7 @@ import com.rayluc.ffxivnodetimer.data.ProviderContracts;
 import com.rayluc.ffxivnodetimer.databinding.ActivityItemListBinding;
 import com.rayluc.ffxivnodetimer.databinding.CardNodeItemBinding;
 import com.rayluc.ffxivnodetimer.model.NodeItem;
+import com.rayluc.ffxivnodetimer.timer.NotificationService;
 import com.rayluc.ffxivnodetimer.util.Util;
 
 import java.text.SimpleDateFormat;
@@ -49,7 +51,6 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
     static final int COL_ZONE = 4;
     static final int COL_COORD = 5;
     static final int COL_ENABLED = 6;
-    static final int COL_OFFSET = 7;
 
     private static final String[] ITEM_COLUMS = {
             ProviderContracts.ItemEntry.TABLE_NAME + "." + ProviderContracts.ItemEntry._ID,
@@ -58,8 +59,7 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
             ProviderContracts.ItemEntry.COLUMN_SLOT,
             ProviderContracts.ItemEntry.COLUMN_ZONE,
             ProviderContracts.ItemEntry.COLUMN_COORDINATES,
-            ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED,
-            ProviderContracts.ItemEntry.COLUMN_OFFSET
+            ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED
     };
     private final Handler mHandler = new Handler();
     //Data binding binder
@@ -143,7 +143,7 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
     //Configures Eorzean Timer text view
     //Should only run onstart through onstop (we don't need to update the ui when its stopped)
     private void configureTimer() {
-        simpleDateFormat = new SimpleDateFormat("HH:mm");
+        simpleDateFormat = new SimpleDateFormat("hh:mm aa");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         mTimer = new Timer();
         mTimer.schedule(new TimerTask() {
@@ -157,24 +157,6 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
     //Called by the timer task
     private void updateTime() {
         mHandler.post(updateTextRunnable);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_item_list, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -201,29 +183,43 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
 
     @Override
     public void onQueryComplete(Cursor cursor) {
-        if (cursor != null) {
-            cursor.moveToFirst();
-            int id = cursor.getInt(cursor.getColumnIndex(ProviderContracts.ItemEntry._ID));
-            boolean enabled = cursor.getInt(cursor.getColumnIndex(ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED)) == 1;
-            mAdapter.updateIcon(id, enabled);
-        }
 
     }
 
     @Override
-    public void onInsertClicked(int id, int minutesOffset) {
+    public void onUpdateComplete(int id) {
+
+    }
+
+    @Override
+    public void onInsertClicked(int id) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        Intent newIntent = new Intent(this, NotificationService.class);
+        newIntent.putExtra(Constants.NODE_ID, id);
+        PendingIntent pendingIntent = PendingIntent.getService(this, id, newIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        long alarm = Util.getNextRealTimeInMillis(mAdapter.getItemById(id).time);
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarm, pendingIntent);
+
         Uri uri = ProviderContracts.ItemEntry.CONTENT_URI;
         ContentValues values = new ContentValues();
-        values.put(ProviderContracts.ItemEntry.COLUMN_OFFSET, minutesOffset);
         values.put(ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED, 1);
-        new AsyncQueryHandlerWithCallback(getContentResolver(), this).startUpdate(0, null, uri, values, ProviderContracts.ItemEntry._ID + " = ?", new String[]{String.valueOf(id)});
+        new AsyncQueryHandlerWithCallback(getContentResolver(), this).startUpdate(id, null, uri, values, ProviderContracts.ItemEntry._ID + " = ?", new String[]{String.valueOf(id)});
     }
 
     @Override
     public void onRemoveTimerClicked(int id) {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        Intent newIntent = new Intent(this, NotificationService.class);
+        newIntent.putExtra(Constants.NODE_ID, id);
+
+        PendingIntent pendingIntent = PendingIntent.getService(this, id, newIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
+
         Uri uri = ProviderContracts.ItemEntry.CONTENT_URI;
         ContentValues values = new ContentValues();
-        values.put(ProviderContracts.ItemEntry.COLUMN_OFFSET, 0);
         values.put(ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED, 0);
         new AsyncQueryHandlerWithCallback(getContentResolver(), this).startUpdate(0, null, uri, values, ProviderContracts.ItemEntry._ID + " = ?", new String[]{String.valueOf(id)});
     }
@@ -264,13 +260,15 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
             holder.cardItemBinding.setItem(item);
         }
 
-        public void updateIcon(int nodeId, boolean enabled) {
-            for (NodeItem item : mData) {
-                if (item.id == nodeId) {
-                    item.timerEnabled.set(enabled);
-                    return;
+        public NodeItem getItemById(int id) {
+            if (mData != null) {
+                for (NodeItem item : mData) {
+                    if (item.id == id) {
+                        return item;
+                    }
                 }
             }
+            return null;
         }
 
         @Override
@@ -296,8 +294,7 @@ public class ItemListActivity extends AppCompatActivity implements AsyncQueryHan
                     data.getInt(COL_SLOT),
                     data.getString(COL_ZONE),
                     data.getString(COL_COORD),
-                    data.getInt(COL_ENABLED) == 1,
-                    data.getInt(COL_OFFSET));
+                    data.getInt(COL_ENABLED) == 1);
         }
 
         protected class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

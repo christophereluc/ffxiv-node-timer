@@ -1,9 +1,13 @@
 package com.rayluc.ffxivnodetimer.activity;
 
+import android.app.AlarmManager;
 import android.app.LoaderManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.databinding.DataBindingUtil;
@@ -31,6 +35,7 @@ import com.rayluc.ffxivnodetimer.data.ProviderContracts;
 import com.rayluc.ffxivnodetimer.databinding.ActivitySetTimersBinding;
 import com.rayluc.ffxivnodetimer.databinding.CardTimerItemBinding;
 import com.rayluc.ffxivnodetimer.model.NodeItem;
+import com.rayluc.ffxivnodetimer.timer.NotificationService;
 import com.rayluc.ffxivnodetimer.util.Util;
 
 import java.text.SimpleDateFormat;
@@ -39,9 +44,6 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * Created by chris on 7/10/16.
- */
 public class TimerListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     //Database items
@@ -49,15 +51,13 @@ public class TimerListActivity extends AppCompatActivity implements LoaderManage
     static final int COL_TIME = 1;
     static final int COL_NAME = 2;
     static final int COL_ZONE = 3;
-    static final int COL_OFFSET = 4;
-    static final int COL_COORD = 5;
+    static final int COL_COORD = 4;
 
     private static final String[] ITEM_COLUMS = {
             ProviderContracts.ItemEntry.TABLE_NAME + "." + ProviderContracts.ItemEntry._ID,
             ProviderContracts.ItemEntry.COLUMN_TIME,
             ProviderContracts.ItemEntry.COLUMN_NAME,
             ProviderContracts.ItemEntry.COLUMN_ZONE,
-            ProviderContracts.ItemEntry.COLUMN_OFFSET,
             ProviderContracts.ItemEntry.COLUMN_COORDINATES
     };
     private final Handler mHandler = new Handler();
@@ -77,8 +77,6 @@ public class TimerListActivity extends AppCompatActivity implements LoaderManage
         }
     };
 
-    private boolean mItemDeleted = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,15 +85,7 @@ public class TimerListActivity extends AppCompatActivity implements LoaderManage
         setSupportActionBar(mBinding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getLoaderManager().initLoader(0, null, this);
-        if (savedInstanceState != null) {
-            mItemDeleted = savedInstanceState.getBoolean(Constants.EXTRA_ITEM_DELETED);
-        }
-    }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(Constants.EXTRA_ITEM_DELETED, mItemDeleted);
     }
 
     @Override
@@ -164,7 +154,7 @@ public class TimerListActivity extends AppCompatActivity implements LoaderManage
     //Configures Eorzean Timer text view
     //Should only run onstart through onstop (we don't need to update the ui when its stopped)
     private void configureTimer() {
-        simpleDateFormat = new SimpleDateFormat("HH:mm");
+        simpleDateFormat = new SimpleDateFormat("hh:mm aa");
         simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         mTimer = new Timer();
         mTimer.schedule(new TimerTask() {
@@ -254,7 +244,6 @@ public class TimerListActivity extends AppCompatActivity implements LoaderManage
             nodeItem.time = data.getString(COL_TIME);
             nodeItem.name = data.getString(COL_NAME);
             nodeItem.zone = data.getString(COL_ZONE);
-            nodeItem.minuteOffset = data.getInt(COL_OFFSET);
             nodeItem.coord = data.getString(COL_COORD);
             return nodeItem;
         }
@@ -281,7 +270,6 @@ public class TimerListActivity extends AppCompatActivity implements LoaderManage
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 Uri uri = ProviderContracts.ItemEntry.CONTENT_URI;
                                 ContentValues values = new ContentValues();
-                                values.put(ProviderContracts.ItemEntry.COLUMN_OFFSET, 0);
                                 values.put(ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED, 0);
                                 new AsyncQueryHandlerWithCallback(getContentResolver(), ViewHolder.this).startUpdate(0, null, uri, values, ProviderContracts.ItemEntry._ID + " = ?", new String[]{String.valueOf(item.id)});
                             }
@@ -302,10 +290,18 @@ public class TimerListActivity extends AppCompatActivity implements LoaderManage
 
             @Override
             public void onQueryComplete(Cursor cursor) {
-                mItemDeleted = true;
-                int position = getAdapterPosition();
-                mData.remove(position);
-                notifyItemRemoved(position);
+
+            }
+
+            @Override
+            public void onUpdateComplete(int id) {
+                AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+                Intent newIntent = new Intent(TimerListActivity.this, NotificationService.class);
+                newIntent.putExtra(Constants.NODE_ID, id);
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(TimerListActivity.this, id, newIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                alarmManager.cancel(pendingIntent);
             }
         }
     }

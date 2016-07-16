@@ -4,9 +4,6 @@ import android.databinding.ObservableBoolean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by chris on 7/10/16.
- */
 public class NodeItem implements Parcelable {
     public static final Creator<NodeItem> CREATOR = new Creator<NodeItem>() {
         @Override
@@ -26,7 +23,6 @@ public class NodeItem implements Parcelable {
     public String zone;
     public String coord;
     public ObservableBoolean timerEnabled = new ObservableBoolean(false);
-    public int minuteOffset = 0;
 
     public NodeItem() {
 
@@ -42,7 +38,7 @@ public class NodeItem implements Parcelable {
     }
 
 
-    public NodeItem(int id, String time, String name, int slot, String zone, String coord, boolean timerEnabled, int offset) {
+    public NodeItem(int id, String time, String name, int slot, String zone, String coord, boolean timerEnabled) {
         this.id = id;
         this.time = time;
         this.name = name;
@@ -50,7 +46,6 @@ public class NodeItem implements Parcelable {
         this.zone = zone;
         this.coord = coord;
         this.timerEnabled = new ObservableBoolean(timerEnabled);
-        this.minuteOffset = offset;
     }
 
     protected NodeItem(Parcel in) {
@@ -61,7 +56,6 @@ public class NodeItem implements Parcelable {
         zone = in.readString();
         coord = in.readString();
         timerEnabled = in.readParcelable(ObservableBoolean.class.getClassLoader());
-        minuteOffset = in.readInt();
     }
 
     public String getFormattedZoneCoord() {
@@ -82,6 +76,5 @@ public class NodeItem implements Parcelable {
         parcel.writeString(zone);
         parcel.writeString(coord);
         parcel.writeParcelable(timerEnabled, i);
-        parcel.writeInt(minuteOffset);
     }
 }

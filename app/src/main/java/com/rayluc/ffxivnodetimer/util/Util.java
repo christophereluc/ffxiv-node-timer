@@ -5,10 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
-/**
- * Created by chris on 7/10/16.
- */
 public final class Util {
 
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm", Locale.US);
@@ -34,16 +32,21 @@ public final class Util {
         //Since this can be time sensitive, instead of relying on the Calendar object and SDF
         //to parse items and do time manipulation, I decided to make assumptions on the time
         //since I will be the one inputting it into the database
+
+        //Also times only pop on the hour, so minutes can be ignored
         if (time.length() > 5) {
             return -1;
         }
+        long eorzeanTime = getEorzeanTime();
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(getEorzeanTime());
+        calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+        calendar.setTimeInMillis(eorzeanTime);
         Calendar calendarCopy = Calendar.getInstance();
-        calendarCopy.setTimeInMillis(getEorzeanTime());
+        calendarCopy.setTimeInMillis(eorzeanTime);
+        calendarCopy.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         calendarCopy.set(Calendar.HOUR_OF_DAY, Integer.valueOf(time.substring(0, 2)));
-        calendarCopy.set(Calendar.MINUTE, Integer.valueOf(time.substring(3)));
+        calendarCopy.set(Calendar.MINUTE, 0);
         calendarCopy.set(Calendar.SECOND, 0);
         calendarCopy.set(Calendar.MILLISECOND, 0);
 

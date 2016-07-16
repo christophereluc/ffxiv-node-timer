@@ -2,9 +2,6 @@ package com.rayluc.ffxivnodetimer.data;
 
 import com.rayluc.ffxivnodetimer.model.NodeItem;
 
-/**
- * Created by chris on 7/10/16.
- */
 public final class DefaultQueries {
 
     protected static NodeItem[] MINER_ITEMS = {
@@ -45,10 +42,10 @@ public final class DefaultQueries {
             new NodeItem(34, "02:00", "Old World Fig", 2, "The Dravanian Forelands", "(x26,y12)"),
             new NodeItem(35, "14:00", "Old World Fig", 2, "The Dravanian Forelands", "(x26,y12)"),
             new NodeItem(36, "15:00", "Crystallized Sap", 4, "The Churning Mists", "(x11,y10)"),
-            new NodeItem(37, "15:00", "Old-growth Camphorwood Log", 6, "The Churning Mists", "(x11,y10)"),
-            new NodeItem(38, "15:00", "Seventh Heaven", 1, "The Churning Mists", "(x17,36)"),
-            new NodeItem(39, "15:00", "Honeydew Almonds", 2, "The Sea of Clouds", "(x24,y6)"),
-            new NodeItem(40, "15:00", "Vanilla Beans", 3, "Coerthas Western Highlands", "(x23,y21)"),
+            new NodeItem(37, "16:00", "Old-growth Camphorwood Log", 6, "The Churning Mists", "(x11,y10)"),
+            new NodeItem(38, "17:00", "Seventh Heaven", 1, "The Churning Mists", "(x17,36)"),
+            new NodeItem(39, "18:00", "Honeydew Almonds", 2, "The Sea of Clouds", "(x24,y6)"),
+            new NodeItem(40, "19:00", "Vanilla Beans", 3, "Coerthas Western Highlands", "(x23,y21)"),
             new NodeItem(41, "19:00", "Snurbleberry", 2, "The Dravanian Hinterlands", "(x39,y26)"),
             new NodeItem(42, "19:00", "Dravanian Paprika", 3, "Coerthas Western Highlands", "(x25,y32)"),
             new NodeItem(43, "19:00", "Wattle Bark", 5, "Azys Lla", "(x22,y10)"),

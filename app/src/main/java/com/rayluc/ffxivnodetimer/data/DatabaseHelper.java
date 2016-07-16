@@ -7,9 +7,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.rayluc.ffxivnodetimer.model.NodeItem;
 
-/**
- * Created by chris on 7/10/16.
- */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_NAME = "node.db";
@@ -29,7 +26,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ProviderContracts.ItemEntry.COLUMN_SLOT + " INTEGER NOT NULL, " +
                 ProviderContracts.ItemEntry.COLUMN_ZONE + " TEXT NOT NULL, " +
                 ProviderContracts.ItemEntry.COLUMN_COORDINATES + " TEXT NOT NULL, " +
-                ProviderContracts.ItemEntry.COLUMN_OFFSET + " INTEGER DEFAULT 0, " +
                 ProviderContracts.ItemEntry.COLUMN_TIMER_ENABLED + " INTEGER DEFAULT 0" +
                 " );";
 
