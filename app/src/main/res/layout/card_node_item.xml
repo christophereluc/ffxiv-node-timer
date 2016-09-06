@@ -3,10 +3,10 @@
 
     <data>
 
-        <import type="com.rayluc.ffxivnodetimer.util.Util"/>
+        <import type="com.christopherluc.ffxivnodetimer.util.Util"/>
         <variable
             name="item"
-            type="com.rayluc.ffxivnodetimer.model.NodeItem"/>
+            type="com.christopherluc.ffxivnodetimer.model.NodeItem"/>
     </data>
 
     <android.support.v7.widget.CardView

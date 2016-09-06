@@ -1,4 +1,4 @@
-package com.rayluc.ffxivnodetimer;
+package com.christopherluc.ffxivnodetimer;
 
 import org.junit.Test;
 
